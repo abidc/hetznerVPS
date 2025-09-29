@@ -1,0 +1,10 @@
+.env
+*.env
+env/*
+!env/.env.example
+**/data/**
+**/logs/**
+**/tmp/**
+**/.DS_Store
+**/*.sqlite*
+ops/cloudflared/*.json

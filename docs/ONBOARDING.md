@@ -1,0 +1,4 @@
+- Clone repo to /srv/stack
+- Fill env/.env.global and env/.env.smtp with real values
+- Create Cloudflare named tunnel; drop credentials JSON in ops/cloudflared/
+- Run: make bootstrap && make up
