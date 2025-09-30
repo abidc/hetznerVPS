@@ -1,0 +1,22 @@
+tunnel: 5e8ffd9c-2d6e-4669-b757-5ea478b77c03
+credentials-file: /etc/cloudflared/5e8ffd9c-2d6e-4669-b757-5ea478b77c03.json
+no-autoupdate: true
+
+ingress:
+  - hostname: dashy.abidc.dev
+    service: http://dashy:80
+  - hostname: n8n.abidc.dev
+    service: http://n8n:5678
+  - hostname: flowise.abidc.dev
+    service: http://flowise:3000
+  - hostname: chat.abidc.dev
+    service: http://openwebui:8080
+  - hostname: writing.abidc.dev
+    service: http://ghost:2368
+  - hostname: docmost.abidc.dev
+    service: http://docmost:3000
+  - hostname: links.abidc.dev
+    service: http://linkstack:80
+  - hostname: homebox.abidc.dev
+    service: http://homebox:7745
+  - service: http_status:404

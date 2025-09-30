@@ -1,0 +1,112 @@
+services:
+  dashy:
+    image: lissy93/dashy:2.1.1
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+    volumes:
+      - /srv/stack/data/dashy:/app/public
+    networks:
+      - net_core
+
+  n8n:
+    image: n8nio/n8n:1.55.1
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      N8N_HOST: ${N8N_HOST:-n8n.local}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+    volumes:
+      - /srv/stack/data/n8n:/home/node/.n8n
+    networks:
+      - net_core
+
+  flowise:
+    image: flowiseai/flowise:1.3.3
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      FLOWISE_USERNAME: ${FLOWISE_USERNAME:-admin}
+      FLOWISE_PASSWORD: ${FLOWISE_PASSWORD:-changeme}
+      FLOWISE_FILE_STORAGE_PATH: /root/.flowise/storage
+    volumes:
+      - /srv/stack/data/flowise:/root/.flowise
+    networks:
+      - net_core
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui@sha256:c77fa8da6d702ed064b36d414a9493e0bc5242d9a5a3ea0828c5013cbf35b1d5
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+    volumes:
+      - /srv/stack/data/openwebui:/app/backend/data
+    networks:
+      - net_core
+
+  ghost:
+    image: ghost:5.80.0
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      url: ${GHOST_URL:-http://ghost:2368}
+    volumes:
+      - /srv/stack/data/ghost:/var/lib/ghost/content
+    networks:
+      - net_core
+
+  docmost:
+    image: docmost/docmost:0.23.2
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      APP_URL: ${DOCMOST_APP_URL:-http://docmost:3000}
+      DATABASE_URL: ${DOCMOST_DATABASE_URL:-postgres://docmost:docmost@postgres:5432/docmost}
+      SECRET_KEY_BASE: ${DOCMOST_SECRET_KEY_BASE:-insecure-temporary-key}
+      REDIS_URL: ${DOCMOST_REDIS_URL:-redis://redis:6379/0}
+    volumes:
+      - /srv/stack/data/docmost:/app/data
+    networks:
+      - net_core
+
+  linkstack:
+    image: linkstackorg/linkstack@sha256:3b50576886035436fdfef627d1cc3200cfd2ad23a098ab2554afc3b40e1c5d8f
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      APP_NAME: ${LINKSTACK_APP_NAME:-LinkStack}
+      APP_URL: ${LINKSTACK_APP_URL:-https://links.example.com}
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /var/www/html/storage/linkstack.sqlite
+    volumes:
+      - /srv/stack/data/linkstack:/var/www/html/storage
+    networks:
+      - net_core
+
+  homebox:
+    image: ghcr.io/sysrqm/homebox:0.10.3
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      HBOX_SECRET_KEY: ${HBOX_SECRET_KEY:-insecure-temporary-key}
+      HBOX_ALLOWED_HOSTS: "*"
+    volumes:
+      - /srv/stack/data/homebox:/data
+    networks:
+      - net_core
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - /srv/stack/ops/cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+      - /srv/stack/ops/cloudflared/5e8ffd9c-2d6e-4669-b757-5ea478b77c03.json:/etc/cloudflared/5e8ffd9c-2d6e-4669-b757-5ea478b77c03.json:ro
+    networks:
+      - net_core
+
+networks:
+  net_core:
+    external: true
