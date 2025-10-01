@@ -1,3 +1,4 @@
+ri
 tunnel: 5e8ffd9c-2d6e-4669-b757-5ea478b77c03
 credentials-file: /etc/cloudflared/5e8ffd9c-2d6e-4669-b757-5ea478b77c03.json
 origincert: /etc/cloudflared/cert.pem
@@ -23,9 +24,7 @@ ingress:
   - hostname: homarr.abidc.dev
     service: http://homarr:7575
   - hostname: portainer.abidc.dev
-    service: https://portainer:9443
-    originRequest:
-      noTLSVerify: true
+    service: http://portainer:9000
   - hostname: dockge.abidc.dev
     service: http://dockge:5001
   - hostname: mem0.abidc.dev
@@ -34,4 +33,6 @@ ingress:
     service: http://paperless:8000
   - hostname: homebox.abidc.dev
     service: http://homebox:7745
+  - hostname: whiteboard.abidc.dev
+    service: http://excalidraw:80
   - service: http_status:404

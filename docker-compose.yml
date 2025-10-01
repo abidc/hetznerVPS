@@ -1,3 +1,4 @@
+version: '3.3'
 services:
   dashy:
     image: lissy93/dashy:2.1.1
@@ -10,13 +11,16 @@ services:
       - net_core
 
   n8n:
-    image: n8nio/n8n:1.55.1
+    image: n8nio/n8n:1.113.3
     restart: unless-stopped
     environment:
       TZ: UTC
-      N8N_HOST: ${N8N_HOST:-n8n.local}
+      N8N_HOST: n8n.abidc.dev
       N8N_PORT: 5678
-      N8N_PROTOCOL: http
+      N8N_PROTOCOL: https
+      WEBHOOK_URL: https://n8n.abidc.dev/
+      N8N_EDITOR_BASE_URL: https://n8n.abidc.dev/
+      N8N_DIAGNOSTICS_ENABLED: "false"
     volumes:
       - /srv/stack/data/n8n:/home/node/.n8n
     networks:
@@ -28,8 +32,8 @@ services:
     command: flowise start
     environment:
       TZ: UTC
-      FLOWISE_USERNAME: ${FLOWISE_USERNAME:-admin}
-      FLOWISE_PASSWORD: ${FLOWISE_PASSWORD:-changeme}
+      FLOWISE_USERNAME: flowise_admin
+      FLOWISE_PASSWORD: "Flowise!2025"
       FLOWISE_FILE_STORAGE_PATH: /root/.flowise/storage
     volumes:
       - /srv/stack/data/flowise:/root/.flowise
@@ -39,13 +43,13 @@ services:
   openwebui:
     image: ghcr.io/open-webui/open-webui@sha256:c77fa8da6d702ed064b36d414a9493e0bc5242d9a5a3ea0828c5013cbf35b1d5
     restart: unless-stopped
-    environment:
-      TZ: UTC
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
     volumes:
       - /srv/stack/data/openwebui:/app/backend/data
     networks:
       - net_core
+    environment:
+      TZ: UTC
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
 
   ghost:
     image: ghost:5.80.0
@@ -56,7 +60,7 @@ services:
       database__client: mysql
       database__connection__host: mysql
       database__connection__user: root
-      database__connection__password: ${MYSQL_ROOT_PASSWORD}
+      database__connection__password: ${MYSQL_ROOT_PASSWORD:-default_password}
       database__connection__database: ghost
     volumes:
       - /srv/stack/data/ghost:/var/lib/ghost/content
@@ -94,7 +98,7 @@ services:
       - net_core
 
   homebox:
-    image: ghcr.io/sysrqm/homebox:0.10.3
+    image: sysadminsmedia/homebox:latest
     restart: unless-stopped
     environment:
       TZ: UTC
@@ -110,7 +114,7 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
-    command: tunnel --config /etc/cloudflared/config.yml run
+    command: tunnel --config /etc/cloudflared/config.yml --no-autoupdate run
     volumes:
       - /srv/stack/ops/cloudflared:/etc/cloudflared
     networks:
@@ -147,11 +151,46 @@ services:
       - net_core
 
   mem0:
-    image: ghcr.io/mem0ai/mem0:latest
+    image: mem0/mem0-api-server:latest
     container_name: mem0
     restart: unless-stopped
     ports:
       - "8000:8000"
+    environment:
+      - MEM0_API_KEY=${MEM0_API_KEY:-default-api-key}
+      - QDRANT_HOST=${QDRANT_HOST:-localhost}
+      - QDRANT_PORT=${QDRANT_PORT:-6333}
+    networks:
+      - net_core
+  excalidraw:
+    image: excalidraw/excalidraw:latest
+    container_name: excalidraw
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    networks:
+      - net_core
+
+
+  redis:
+    image: redis:alpine
+    container_name: paperless-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - net_core
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: paperless-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: ${MYSQL_ROOT_PASSWORD:-default_password}
+    volumes:
+      - /srv/stack/data/paperless/postgres:/var/lib/postgresql/data
     networks:
       - net_core
 
@@ -161,11 +200,23 @@ services:
     restart: unless-stopped
     ports:
       - "8001:8000"
+    networks:
+      - net_core
     volumes:
       - paperless_data:/usr/src/paperless/data
       - paperless_media:/usr/src/paperless/media
-    networks:
-      - net_core
+    environment:
+      PAPERLESS_REDIS: redis://paperless-redis:6379/0
+      PAPERLESS_DBHOST: paperless-postgres
+      PAPERLESS_DBPORT: 5432
+      PAPERLESS_DBNAME: paperless
+      PAPERLESS_DBUSER: paperless
+      PAPERLESS_DBPASS: paperless
+      PAPERLESS_DBENGINE: postgresql
+      # OpenWebUI configuration to connect to Paperless
+      PAPERLESS_URL: https://paperless.abidc.dev
+      PAPERLESS_CSRF_TRUSTED_ORIGINS: https://paperless.abidc.dev
+      PAPERLESS_ALLOWED_HOSTS: paperless.abidc.dev,paperless
 
 
 networks:
