@@ -69,10 +69,9 @@ services:
     environment:
       TZ: UTC
       APP_URL: ${DOCMOST_APP_URL:-http://docmost:3000}
-      DATABASE_URL: ${DOCMOST_DATABASE_URL:-postgres://postgres:changeme@postgres:5432/postgres}
-      APP_SECRET: 8716844a13bf87e27b78e2795cda663a068b6c90ed5621ff1ef1e89b8a6300d1
+      DATABASE_URL: ${DOCMOST_DATABASE_URL:-postgres://docmost:docmost@postgres:5432/docmost}
       SECRET_KEY_BASE: ${DOCMOST_SECRET_KEY_BASE:-insecure-temporary-key}
-      REDIS_URL: ${DOCMOST_REDIS_URL:-redis://:changeme@redis:6379/0}
+      REDIS_URL: ${DOCMOST_REDIS_URL:-redis://redis:6379/0}
     volumes:
       - /srv/stack/data/docmost:/app/data
     networks:
@@ -105,6 +104,8 @@ services:
       - /srv/stack/data/homebox:/data
     networks:
       - net_core
+    ports:
+      - "7745:7745"
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -115,6 +116,63 @@ services:
     networks:
       - net_core
 
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    restart: unless-stopped
+    ports:
+      - "7575:7575"
+    networks:
+      - net_core
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - net_core
+
+  dockge:
+    image: louislam/dockge:latest
+    container_name: dockge
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    networks:
+      - net_core
+
+  mem0:
+    image: ghcr.io/mem0ai/mem0:latest
+    container_name: mem0
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - net_core
+
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    volumes:
+      - paperless_data:/usr/src/paperless/data
+      - paperless_media:/usr/src/paperless/media
+    networks:
+      - net_core
+
+
 networks:
   net_core:
     external: true
+
+volumes:
+  portainer_data:
+  paperless_data:
+  paperless_media:
