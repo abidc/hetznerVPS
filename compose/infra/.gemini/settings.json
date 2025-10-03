@@ -1,0 +1,67 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ]
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp"
+      ]
+    },
+    "knowledge-graph": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-knowledge-graph"
+      ]
+    },
+    "desktop-commander": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wonderwhy-er/desktop-commander"
+      ]
+    },
+    "octocode": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "octocode-mcp"
+      ]
+    },
+    "mcp-compass": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@liuyoshio/mcp-compass"
+      ]
+    },
+    "crush": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@charmland/crush"
+      ]
+    },
+    "n8n": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@leonardsellem/n8n-mcp-server"
+      ]
+    }
+  }
+}

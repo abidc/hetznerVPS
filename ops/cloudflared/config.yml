@@ -1,4 +1,3 @@
-ri
 tunnel: 5e8ffd9c-2d6e-4669-b757-5ea478b77c03
 credentials-file: /etc/cloudflared/5e8ffd9c-2d6e-4669-b757-5ea478b77c03.json
 origincert: /etc/cloudflared/cert.pem
@@ -16,7 +15,7 @@ ingress:
   - hostname: writing.abidc.dev
     service: http://ghost:2368
   - hostname: dashy.abidc.dev
-    service: http://dashy:80
+    service: http://homarr:7575
   - hostname: flowise.abidc.dev
     service: http://flowise:3000
   - hostname: docmost.abidc.dev
