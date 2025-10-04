@@ -58,3 +58,33 @@ Backup Summary
 ✓ All backups completed successfully!
 Location: /srv/stack/backups
 ==========================================
+==========================================
+Starting database backups - 20251004_020001
+==========================================
+[1/5] Backing up PostgreSQL (Docmost)...
+  ✓ PostgreSQL backup complete: docmost_20251004_020001.sql.gz
+[2/5] Backing up MySQL (Ghost)...
+mysqldump: [Warning] Using a password on the command line interface can be insecure.
+  ✓ MySQL backup complete: all_databases_20251004_020001.sql.gz
+[3/5] Backing up Redis...
+  ✓ Redis backup attempted
+[4/5] Backing up Docmost data...
+  ✓ Docmost data backup complete: data_20251004_020001.tar.gz
+[5/5] Backing up LinkStack...
+  ✓ LinkStack backup complete: linkstack_20251004_020001.sqlite.gz
+
+Cleaning up backups older than 7 days...
+
+==========================================
+Backup Summary
+==========================================
+  /srv/stack/backups/backup.log: 4.0K
+  /srv/stack/backups/docmost: 20K
+  /srv/stack/backups/linkstack: 20K
+  /srv/stack/backups/mysql: 3.7M
+  /srv/stack/backups/postgres: 196K
+  /srv/stack/backups/redis: 20K
+
+✓ All backups completed successfully!
+Location: /srv/stack/backups
+==========================================

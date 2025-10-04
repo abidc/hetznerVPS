@@ -55,12 +55,20 @@ services:
     restart: unless-stopped
     environment:
       TZ: UTC
-      url: ${GHOST_URL:-http://ghost:2368}
+      url: https://writing.abidc.dev
       database__client: mysql
       database__connection__host: mysql
       database__connection__user: root
       database__connection__password: ${MYSQL_ROOT_PASSWORD:-default_password}
       database__connection__database: ghost
+      mail__transport: SMTP
+      mail__options__service: Gmail
+      mail__options__host: smtp.gmail.com
+      mail__options__port: 587
+      mail__options__secure: "false"
+      mail__options__auth__user: abid.chaudhry@gmail.com
+      mail__options__auth__pass: zgrhvnxkjlhaabxe
+      mail__from: abid.chaudhry@gmail.com
     volumes:
       - /srv/stack/data/ghost:/var/lib/ghost/content
     networks:
@@ -125,6 +133,8 @@ services:
     restart: unless-stopped
     ports:
       - "7575:7575"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - net_core
 

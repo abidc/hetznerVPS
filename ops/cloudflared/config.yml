@@ -15,7 +15,7 @@ ingress:
   - hostname: writing.abidc.dev
     service: http://ghost:2368
   - hostname: dashy.abidc.dev
-    service: http://homarr:7575
+    service: http://dashy:8080
   - hostname: flowise.abidc.dev
     service: http://flowise:3000
   - hostname: docmost.abidc.dev
