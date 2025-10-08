@@ -21,8 +21,6 @@ services:
       WEBHOOK_URL: https://n8n.abidc.dev/
       N8N_EDITOR_BASE_URL: https://n8n.abidc.dev/
       N8N_DIAGNOSTICS_ENABLED: "false"
-      N8N_CUSTOM_EXTENSIONS: /home/node/.n8n/custom
-
     volumes:
       - /srv/stack/data/n8n:/home/node/.n8n
     networks:
