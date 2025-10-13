@@ -1,149 +1,80 @@
 # Service Recovery Action Plan
 
-## Issue Summary
-After restoring the Cloudflare tunnel, several services are experiencing various issues ranging from authentication problems to missing configurations.
+_Last updated: 2025-10-13 (UTC)_
 
-## Categorized Issues
+This plan reflects the current container inventory and the procedures exercised
+during the latest system health check. Work through the phases sequentially when
+recovering from outages so core access is restored before application tiers.
 
-### 🔴 Critical Infrastructure (Priority 1)
-1. **Portainer** - Security timeout + 1033 error
-2. **Dockge** - Cannot see docker containers
+## Environment reference
 
-### 🟡 Authentication/Configuration (Priority 2)
-3. **Flowise** - Stuck on login with cached credentials
-4. **Paperless** - CSRF 403 error on account creation
-5. **Linkstack** - Boot loop after admin creation
+* Shared Docker network: `net_core` (created by `make bootstrap`).
+* Persistent data root: `/srv/stack/data` (see service-specific subdirectories).
+* Core compose files:
+  * `compose/infra/docker-compose.yml` – databases, caches, internal dashboards, and
+    Watchtower.
+  * `docker-compose.yml` – application layer (Flowise, Paperless-ngx, Linkstack, etc.).
+* Health commands:
+  * `uptime` for load averages.
+  * `top -bn1 | head -n 15` for real-time CPU consumers.
+  * `free -h` for RAM and swap usage.
 
-### 🟢 Data/Rendering (Priority 3)
-6. **Homebox** - Static placeholder HTML
-7. **Dashy** - Blank page
+## Phase 1 – Access & Control Plane
 
-### 🔵 Missing Services (Priority 4)
-8. **Excalidraw** - Not in tunnel config (whiteboard.abidc.dev)
+1. **Cloudflared tunnel**
+   * Ensure credentials exist in `ops/cloudflared/`.
+   * Restart: `docker compose up -d cloudflared`.
+   * Verify ingress: `docker logs cloudflared | tail`.
+2. **Portainer & Dockge**
+   * Restart: `docker compose up -d portainer dockge`.
+   * Validate via HTTPS on ports 9443 and 5001 respectively.
+3. **Watchtower**
+   * Runs from the infra stack; confirm it is not pulling unexpected images during
+     an incident. Pause with `docker stop watchtower` if necessary.
 
----
+## Phase 2 – Data Services
 
-## Systematic Resolution Plan
+1. **Postgres / MySQL / Redis / Qdrant**
+   * Compose file: `compose/infra/docker-compose.yml`.
+   * Restart order: `docker compose -f compose/infra/docker-compose.yml up -d postgres mysql redis qdrant`.
+   * Validate:
+     * Postgres: `docker exec postgres pg_isready`.
+     * MySQL: `docker exec mysql mysqladmin ping -p`.
+     * Redis: `docker exec redis redis-cli -a "$REDIS_PASSWORD" PING`.
+     * Qdrant: `curl -fsSL http://localhost:6333/collections`.
+2. **Backup expectations**
+   * Database volumes are Docker named volumes; snapshot `/var/lib/docker/volumes/*`
+     or use logical dumps as part of routine backups.
 
-### Phase 1: Fix Critical Infrastructure
+## Phase 3 – Application Layer
 
-#### 1.1 Portainer Recovery
-**Problem:** Security timeout message + needs restart
-**Root Cause:** Portainer has a 5-minute initialization timeout for security
-**Solution:**
-```bash
-docker restart portainer
-```
-**Verification:** Access portainer.abidc.dev and complete first-run setup
+Address services in the order users depend on them. Each command targets the
+root `docker-compose.yml` file unless otherwise noted.
 
-#### 1.2 Dockge Docker Socket Access
-**Problem:** Cannot see docker containers
-**Root Cause:** Missing docker socket mount and stacks directory
-**Solution:**
-- Add docker.sock volume mount
-- Add stacks directory volume mount
-```yaml
-dockge:
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - /srv/stack/data/dockge:/app/data
-```
-**Verification:** Check if containers are visible in Dockge UI
+1. **Authentication-sensitive apps**
+   * Flowise: `docker compose up -d flowise` and follow the credential rotation runbook
+     in `PHASE2_IMPLEMENTATION.md`.
+   * Paperless-ngx stack: `docker compose up -d redis postgres paperless`.
+   * Linkstack: ensure `LINKSTACK_APP_KEY` is set before restart.
+2. **Dashboards and portals**
+   * Dashy and Homarr expose navigation UIs; restart with
+     `docker compose up -d dashy homarr`.
+3. **Content services**
+   * Ghost and Docmost share database dependencies. Confirm Postgres/MySQL are healthy
+     before `docker compose up -d ghost docmost`.
+4. **AI/automation services**
+   * n8n, mem0, and OpenWebUI rely on external APIs. Inspect their environment
+     variables before restarting (`docker compose config <service>` to double-check).
+5. **Collaboration tools**
+   * Excalidraw and Homebox run independently. Restart when other priorities are stable.
 
-### Phase 2: Fix Authentication/Configuration Issues
+## Phase 4 – Verification & Monitoring
 
-#### 2.1 Flowise Login Fix
-**Problem:** Stuck on login screen with old cached credentials
-**Root Cause:** Browser cached invalid credentials
-**Solutions:**
-A. Clear browser cache/cookies for flowise.abidc.dev
-B. Reset Flowise credentials via environment variables
-C. Check if authentication is properly configured
-**Verification:** Can login with correct credentials
+1. `make ps` to confirm every container reports `Up` status.
+2. Inspect logs for the services touched using `docker logs <service> --tail 100`.
+3. Browse to each externally exposed hostname to confirm TLS and application behaviour.
+4. Record the incident, including resource utilisation snapshots from the health
+   commands above, in your operations journal.
 
-#### 2.2 Paperless CSRF Fix
-**Problem:** 403 CSRF verification failed
-**Root Cause:** Missing PAPERLESS_URL configuration causing CSRF origin mismatch
-**Solution:**
-```yaml
-paperless:
-  environment:
-    PAPERLESS_URL: https://paperless.abidc.dev
-    PAPERLESS_CSRF_TRUSTED_ORIGINS: https://paperless.abidc.dev
-```
-**Verification:** Can create account without CSRF error
-
-#### 2.3 Linkstack Boot Loop
-**Problem:** Service in boot loop after admin creation
-**Root Cause:** Likely missing APP_KEY or database corruption
-**Solutions:**
-A. Check logs: `docker logs linkstack`
-B. Generate proper APP_KEY if missing
-C. Clear/reset database if corrupted
-**Verification:** Service starts and admin can login
-
-### Phase 3: Fix Data/Rendering Issues
-
-#### 3.1 Homebox Placeholder
-**Problem:** Shows static "homebox placeholder" HTML
-**Root Cause:** Data directory not properly initialized or wrong image
-**Solutions:**
-A. Check if using correct image version
-B. Verify data directory permissions
-C. Clear and reinitialize data directory
-**Verification:** Homebox loads proper UI
-
-#### 3.2 Dashy Blank Page
-**Problem:** Loads blank page
-**Root Cause:** Missing or corrupt configuration file
-**Solutions:**
-A. Check if conf.yml exists in /srv/stack/data/dashy/
-B. Create default configuration if missing
-C. Check browser console for JS errors
-**Verification:** Dashy loads with configuration
-
-### Phase 4: Add Missing Services
-
-#### 4.1 Add Excalidraw
-**Problem:** whiteboard.abidc.dev returns 1033 error
-**Root Cause:** Service not in docker-compose or cloudflared config
-**Solution:**
-A. Add excalidraw to docker-compose.yml
-B. Add to cloudflared config.yml ingress rules
-C. Create DNS CNAME if missing
-```yaml
-excalidraw:
-  image: excalidraw/excalidraw:latest
-  restart: unless-stopped
-  ports:
-    - "3001:80"
-  networks:
-    - net_core
-```
-**Verification:** whiteboard.abidc.dev loads Excalidraw
-
----
-
-## Execution Order
-
-1. **Start with infrastructure** (Portainer, Dockge) - these are needed to manage other services
-2. **Fix auth/config issues** - these prevent service usage
-3. **Fix data/rendering** - these affect user experience
-4. **Add missing services** - this expands functionality
-
-## Rollback Plan
-
-If any changes cause issues:
-1. Keep backup of docker-compose.yml before changes
-2. Can revert specific service configs
-3. Can restart individual services without affecting others
-4. All data is in /srv/stack/data/ - persistent across restarts
-
-## Success Criteria
-
-All services should:
-- ✅ Return HTTP 200
-- ✅ Load proper UI (no placeholders/blank pages)
-- ✅ Allow authentication where required
-- ✅ Function without errors
-- ✅ Be accessible via their .abidc.dev domains
+Keeping this document updated alongside the codebase ensures the operational picture
+stays accurate after every change.
