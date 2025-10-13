@@ -1,4 +1,4 @@
-- Clone repo to /srv/stack
+- Clone the repository directly into `/srv/stack` (for example: `sudo mkdir -p /srv/stack && sudo chown $USER:$USER /srv/stack && git clone git@github.com:abidc/stack.git /srv/stack`). This keeps the host paths used by the compose files (e.g., `/srv/stack/ops/cloudflared` and `/srv/stack/env`) aligned with the checked-out repo contents.
 - Fill env/.env.global and env/.env.smtp with real values
 - Create Cloudflare named tunnel; drop credentials JSON in ops/cloudflared/
 - Run: make bootstrap && make up
