@@ -162,57 +162,6 @@ services:
       - net_core
 
 
-  redis:
-    image: redis:alpine
-    container_name: paperless-redis
-    restart: unless-stopped
-    command: ["redis-server", "--requirepass", "${PAPERLESS_REDIS_PASSWORD:-change_me_strong}"]
-    networks:
-      - net_core
-
-  postgres:
-    image: postgres:15-alpine
-    container_name: paperless-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: paperless
-      POSTGRES_USER: paperless
-      POSTGRES_PASSWORD: ${MYSQL_ROOT_PASSWORD:-default_password}
-    volumes:
-      - /srv/stack/data/paperless/postgres:/var/lib/postgresql/data
-    networks:
-      - net_core
-
-  paperless:
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
-    container_name: paperless
-    restart: unless-stopped
-    ports:
-      - "8001:8000"
-    networks:
-      - net_core
-    volumes:
-      - paperless_data:/usr/src/paperless/data
-      - paperless_media:/usr/src/paperless/media
-    environment:
-      PAPERLESS_REDIS: redis://:${PAPERLESS_REDIS_PASSWORD:-change_me_strong}@paperless-redis:6379/0
-      PAPERLESS_DBHOST: paperless-postgres
-      PAPERLESS_DBPORT: 5432
-      PAPERLESS_DBNAME: paperless
-      PAPERLESS_DBUSER: paperless
-      PAPERLESS_DBPASS: paperless
-      PAPERLESS_DBENGINE: postgresql
-      # OpenWebUI configuration to connect to Paperless
-      PAPERLESS_URL: https://paperless.abidc.dev
-      PAPERLESS_CSRF_TRUSTED_ORIGINS: https://paperless.abidc.dev
-      PAPERLESS_ALLOWED_HOSTS: paperless.abidc.dev,paperless
-    deploy:
-      resources:
-        limits:
-          memory: 384M
-        reservations:
-          memory: 192M
-
   wordpress:
     image: wordpress:latest
     restart: unless-stopped
@@ -254,5 +203,3 @@ networks:
 
 volumes:
   portainer_data:
-  paperless_data:
-  paperless_media:
