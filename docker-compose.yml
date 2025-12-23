@@ -1,18 +1,10 @@
 version: '3.3'
 services:
-  dashy:
-    image: lissy93/dashy:latest
-    restart: unless-stopped
-    environment:
-      TZ: UTC
-    volumes:
-      - /srv/stack/data/dashy:/app/public
-    networks:
-      - net_core
-
   n8n:
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:2.1.2
     restart: unless-stopped
+    ports:
+      - "5678:5678"
     environment:
       TZ: UTC
       N8N_HOST: n8n.abidc.dev
@@ -22,11 +14,16 @@ services:
       N8N_EDITOR_BASE_URL: https://n8n.abidc.dev/
       N8N_DIAGNOSTICS_ENABLED: "false"
       N8N_CUSTOM_EXTENSIONS: /home/node/.n8n/custom
-
     volumes:
       - /srv/stack/data/n8n:/home/node/.n8n
     networks:
       - net_core
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
 
   flowise:
     image: flowiseai/flowise:latest
@@ -42,7 +39,7 @@ services:
       - net_core
 
   openwebui:
-    image: ghcr.io/open-webui/open-webui@sha256:c77fa8da6d702ed064b36d414a9493e0bc5242d9a5a3ea0828c5013cbf35b1d5
+    image: ghcr.io/open-webui/open-webui:v0.6.43
     restart: unless-stopped
     volumes:
       - /srv/stack/data/openwebui:/app/backend/data
@@ -51,6 +48,12 @@ services:
     environment:
       TZ: UTC
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 384M
 
   ghost:
     image: ghost:latest
@@ -89,9 +92,15 @@ services:
       - /srv/stack/data/docmost:/app/data
     networks:
       - net_core
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
 
   linkstack:
-    image: linkstackorg/linkstack@sha256:3b50576886035436fdfef627d1cc3200cfd2ad23a098ab2554afc3b40e1c5d8f
+    image: linkstackorg/linkstack:latest
     restart: unless-stopped
     environment:
       TZ: UTC
@@ -129,17 +138,6 @@ services:
     networks:
       - net_core
 
-  homarr:
-    image: ghcr.io/ajnart/homarr:latest
-    container_name: homarr
-    restart: unless-stopped
-    ports:
-      - "7575:7575"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - net_core
-
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
@@ -149,15 +147,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-    networks:
-      - net_core
-
-  dockge:
-    image: louislam/dockge:latest
-    container_name: dockge
-    restart: unless-stopped
-    ports:
-      - "5001:5001"
     networks:
       - net_core
 
@@ -177,8 +166,7 @@ services:
     image: redis:alpine
     container_name: paperless-redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    command: ["redis-server", "--requirepass", "${PAPERLESS_REDIS_PASSWORD:-change_me_strong}"]
     networks:
       - net_core
 
@@ -207,7 +195,7 @@ services:
       - paperless_data:/usr/src/paperless/data
       - paperless_media:/usr/src/paperless/media
     environment:
-      PAPERLESS_REDIS: redis://paperless-redis:6379/0
+      PAPERLESS_REDIS: redis://:${PAPERLESS_REDIS_PASSWORD:-change_me_strong}@paperless-redis:6379/0
       PAPERLESS_DBHOST: paperless-postgres
       PAPERLESS_DBPORT: 5432
       PAPERLESS_DBNAME: paperless
@@ -218,6 +206,46 @@ services:
       PAPERLESS_URL: https://paperless.abidc.dev
       PAPERLESS_CSRF_TRUSTED_ORIGINS: https://paperless.abidc.dev
       PAPERLESS_ALLOWED_HOSTS: paperless.abidc.dev,paperless
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+        reservations:
+          memory: 192M
+
+  wordpress:
+    image: wordpress:latest
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      WORDPRESS_DB_HOST: wordpress-mysql
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-wordpress_password}
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'https://wordpress.abidc.dev');
+        define('WP_SITEURL', 'https://wordpress.abidc.dev');
+    volumes:
+      - /srv/stack/data/wordpress:/var/www/html
+    networks:
+      - net_core
+    depends_on:
+      - wordpress-mysql
+
+  wordpress-mysql:
+    image: mysql:8.0
+    container_name: wordpress-mysql
+    restart: unless-stopped
+    environment:
+      TZ: UTC
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: ${WORDPRESS_DB_PASSWORD:-wordpress_password}
+      MYSQL_ROOT_PASSWORD: ${WORDPRESS_MYSQL_ROOT_PASSWORD:-wordpress_root_password}
+    volumes:
+      - /srv/stack/data/wordpress-mysql:/var/lib/mysql
+    networks:
+      - net_core
 
 
 networks:

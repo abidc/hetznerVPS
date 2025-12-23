@@ -8,3 +8,14 @@ env/*
 **/.DS_Store
 **/*.sqlite*
 ops/cloudflared/*.json
+
+# Backups - should not be tracked in git
+backups/
+*.tar.gz
+*.sql.gz
+*.rdb
+backup.log
+docker-compose.yml.backup.*
+
+# Test files
+test-files/
