@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stop Underselling Yourself</title>
+    <style>
+        :root {
+            color-scheme: dark;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow: hidden;
+            min-height: 100vh;
+            font-size: clamp(16px, 1.2vw, 20px);
+        }
+
+        body.presenter-mode {
+            overflow: auto;
+            background: #050505;
+        }
+
+        main.slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        .slide {
+            display: none;
+            width: min(90%, 1200px);
+            padding: clamp(32px, 6vw, 60px);
+            text-align: left;
+            outline: none;
+        }
+
+        .slide.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: clamp(20px, 5vw, 30px);
+            color: #ffffff;
+        }
+
+        h2 {
+            font-size: clamp(2.2rem, 5vw, 3rem);
+            font-weight: 700;
+            margin-bottom: clamp(24px, 6vw, 40px);
+            color: #ffffff;
+        }
+
+        h3 {
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #fbbf24;
+        }
+
+        p, li {
+            font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #d1d5db;
+        }
+
+        .subtitle {
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            color: #9ca3af;
+            font-weight: 400;
+        }
+
+        .highlight {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .weak {
+            color: #ef4444;
+            font-style: italic;
+        }
+
+        .strong {
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .framework-box {
+            background: #1a1a1a;
+            border-left: 4px solid #fbbf24;
+            padding: clamp(20px, 4vw, 30px);
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(20px, 4vw, 30px);
+            margin: clamp(20px, 4vw, 30px) 0;
+        }
+
+        .comparison-box {
+            padding: clamp(18px, 3.5vw, 25px);
+            border-radius: 8px;
+            background: #1a1a1a;
+        }
+
+        .comparison-box.weak {
+            border: 2px solid #ef4444;
+        }
+
+        .comparison-box.strong {
+            border: 2px solid #10b981;
+        }
+
+        .label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: clamp(20px, 5vw, 40px);
+            right: clamp(20px, 5vw, 40px);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            align-items: center;
+        }
+
+        button {
+            background: #fbbf24;
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #f59e0b;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background: #374151;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button:focus-visible {
+            outline: 3px solid rgba(251, 191, 36, 0.6);
+            outline-offset: 2px;
+        }
+
+        .slide-number {
+            position: fixed;
+            bottom: clamp(20px, 5vw, 40px);
+            left: clamp(20px, 5vw, 40px);
+            font-size: 1rem;
+            color: #6b7280;
+        }
+
+        ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        li {
+            margin-bottom: clamp(18px, 4vw, 25px);
+            padding-left: 30px;
+            position: relative;
+        }
+
+        li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        .carl-item {
+            margin-bottom: clamp(28px, 5vw, 40px);
+        }
+
+        .carl-letter {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            color: #fbbf24;
+            display: inline-block;
+            margin-right: 20px;
+            vertical-align: top;
+        }
+
+        .carl-content {
+            display: inline-block;
+            vertical-align: top;
+            width: calc(100% - 100px);
+        }
+
+        .carl-title {
+            font-size: clamp(1.4rem, 3.2vw, 2rem);
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .context-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(18px, 4vw, 25px);
+            margin-top: 40px;
+        }
+
+        .context-card {
+            background: #1a1a1a;
+            padding: clamp(18px, 3.5vw, 25px);
+            border-radius: 8px;
+            border-top: 3px solid #fbbf24;
+        }
+
+        .context-card h3 {
+            font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+            margin-bottom: 15px;
+        }
+
+        .context-card p {
+            font-size: clamp(1rem, 2.2vw, 1.1rem);
+        }
+
+        .carl-example-section {
+            background: #1a1a1a;
+            padding: clamp(18px, 3.5vw, 25px);
+            margin-bottom: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #fbbf24;
+        }
+
+        .carl-example-label {
+            font-size: clamp(1rem, 2.2vw, 1.2rem);
+            font-weight: 700;
+            color: #fbbf24;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .carl-example-text {
+            font-size: clamp(1.05rem, 2.3vw, 1.3rem);
+            line-height: 1.6;
+            color: #d1d5db;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        #notes-panel {
+            position: fixed;
+            top: clamp(20px, 5vw, 40px);
+            right: clamp(20px, 5vw, 40px);
+            width: min(280px, 30vw);
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid rgba(251, 191, 36, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            color: #fbbf24;
+            font-size: 1rem;
+            line-height: 1.4;
+            z-index: 90;
+            backdrop-filter: blur(6px);
+        }
+
+        #notes-panel h3 {
+            margin-bottom: 10px;
+            color: #fbbf24;
+        }
+
+        #notes-panel p {
+            color: #e5e7eb;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        #pdf-btn {
+            position: fixed;
+            top: clamp(20px, 5vw, 40px);
+            left: clamp(20px, 5vw, 40px);
+            z-index: 100;
+        }
+
+        /* Presenter layout */
+        .presenter-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .presenter-main {
+            background: #0f0f0f;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .presenter-main .slide {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            animation: none;
+        }
+
+        .presenter-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .presenter-panel {
+            background: #141414;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .presenter-panel h3 {
+            font-size: 1rem;
+            margin-bottom: 0;
+            color: #fbbf24;
+        }
+
+        #presenter-notes-input {
+            width: 100%;
+            min-height: 160px;
+            background: #0a0a0a;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            color: #f9fafb;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+        }
+
+        .presenter-preview .slide {
+            display: block;
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 16px;
+            width: 100%;
+            animation: none;
+        }
+
+        .presenter-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .presenter-controls button {
+            width: 100%;
+        }
+
+        .timer-display {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #fbbf24;
+        }
+
+        .presenter-controls .timer-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .presenter-controls .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .presenter-controls .nav-buttons button {
+            flex: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .context-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            #notes-panel {
+                width: min(320px, 80vw);
+            }
+        }
+
+        @media (max-width: 768px) {
+            main.slide-container {
+                padding: 10px;
+            }
+
+            .slide {
+                width: 95%;
+                padding: clamp(24px, 6vw, 40px);
+            }
+
+            .navigation {
+                bottom: 15px;
+                right: 15px;
+            }
+
+            #pdf-btn {
+                top: 15px;
+                left: 15px;
+            }
+        }
+
+        @media print {
+            :root {
+                color-scheme: light;
+            }
+
+            body {
+                background: #ffffff;
+                color: #000000;
+                overflow: visible;
+            }
+
+            #pdf-btn,
+            .navigation,
+            .slide-number,
+            #notes-panel,
+            .presenter-layout {
+                display: none !important;
+            }
+
+            main.slide-container {
+                display: block;
+                width: 100%;
+                height: auto;
+                padding: 0;
+            }
+
+            .slide {
+                display: block !important;
+                page-break-after: always;
+                width: 100%;
+                max-width: none;
+                padding: 60px;
+            }
+
+            .slide:last-of-type {
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button id="pdf-btn" type="button" aria-label="Download presentation as PDF">Download PDF</button>
+    <main class="slide-container" role="region" aria-label="Presentation slides">
+        <!-- Slide 1: Title -->
+        <section class="slide active" id="slide-1" role="group" aria-roledescription="slide" aria-label="Slide 1" tabindex="-1" data-notes="Introduce the session focus on storytelling in interviews.">
+            <h1>Stop Underselling Yourself</h1>
+            <p class="subtitle">The Art of Storytelling in Interviews</p>
+        </section>
+
+        <!-- Slide 2: The Problem -->
+        <section class="slide" id="slide-2" role="group" aria-roledescription="slide" aria-label="Slide 2" tabindex="-1" data-notes="Show how generic summaries fail to become compelling stories.">
+            <h2>The Problem</h2>
+            <div class="framework-box">
+                <p style="font-size: 1.6rem; margin-bottom: 30px;">"I have 8 years of experience leading product launches."</p>
+                <p style="font-size: 1.6rem; font-style: italic;">"Tell me about one."</p>
+                <p style="font-size: 1.6rem; margin-top: 30px; color: #ef4444;">"I managed timelines and coordinated with stakeholders."</p>
+            </div>
+            <p style="margin-top: 40px; font-size: 1.6rem;">That's not a story. <span class="highlight">That's a job description.</span></p>
+        </section>
+
+        <!-- Slide 3: What's at Stake -->
+        <section class="slide" id="slide-3" role="group" aria-roledescription="slide" aria-label="Slide 3" tabindex="-1" data-notes="Emphasize that interviews are persuasive moments not recitations.">
+            <h2>Interviews aren't about recitation</h2>
+            <p style="font-size: 1.8rem; margin-top: 40px;">They're about <span class="highlight">persuasion</span>.</p>
+            <p style="font-size: 1.5rem; margin-top: 60px;">The difference between getting an offer and getting passed over often comes down to whether you made someone <span class="highlight">see</span> your value or just <span class="highlight">hear</span> about it.</p>
+        </section>
+
+        <!-- Slide 4: Before/After Comparison -->
+        <section class="slide" id="slide-4" role="group" aria-roledescription="slide" aria-label="Slide 4" tabindex="-1" data-notes="Contrast weak statements with vivid storytelling detail.">
+            <h2>Before & After</h2>
+            <div class="comparison">
+                <div class="comparison-box weak">
+                    <div class="label" style="color: #ef4444;">❌ WEAK</div>
+                    <p>"I improved team efficiency by implementing new processes."</p>
+                </div>
+                <div class="comparison-box strong">
+                    <div class="label" style="color: #10b981;">✓ STRONG</div>
+                    <p>"Our team was missing deadlines because everyone had their own system for tracking work. I built a shared dashboard that cut our planning meetings from 90 minutes to 20, and we hit every deadline that quarter."</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: CARL Framework -->
+        <section class="slide" id="slide-5" role="group" aria-roledescription="slide" aria-label="Slide 5" tabindex="-1" data-notes="Introduce the CARL framework components one by one.">
+            <h2>The CARL Framework</h2>
+            <div style="margin-top: 50px;">
+                <div class="carl-item">
+                    <span class="carl-letter">C</span>
+                    <div class="carl-content">
+                        <div class="carl-title">Context</div>
+                        <p>What problem existed? What was at stake?</p>
+                    </div>
+                </div>
+                <div class="carl-item">
+                    <span class="carl-letter">A</span>
+                    <div class="carl-content">
+                        <div class="carl-title">Action</div>
+                        <p>What did YOU do that was non-obvious?</p>
+                    </div>
+                </div>
+                <div class="carl-item">
+                    <span class="carl-letter">R</span>
+                    <div class="carl-content">
+                        <div class="carl-title">Result</div>
+                        <p>What changed? What were the measurable outcomes?</p>
+                    </div>
+                </div>
+                <div class="carl-item">
+                    <span class="carl-letter">L</span>
+                    <div class="carl-content">
+                        <div class="carl-title">Learning</div>
+                        <p>What did you take away? How did it change your approach?</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: CARL Example -->
+        <section class="slide" id="slide-6" role="group" aria-roledescription="slide" aria-label="Slide 6" tabindex="-1" data-notes="Demonstrate CARL with a detailed customer support story.">
+            <h2>CARL in Action</h2>
+            <div style="margin-top: 30px;">
+                <div class="carl-example-section">
+                    <div class="carl-example-label">Context</div>
+                    <p class="carl-example-text">Our customer support team was drowning—response times hit 48 hours, and we were losing 15% of trial users before they ever got help. Management wanted to hire three more people, but our budget was frozen.</p>
+                </div>
+                <div class="carl-example-section">
+                    <div class="carl-example-label">Action</div>
+                    <p class="carl-example-text">I analyzed 200 support tickets and found 60% were asking the same five questions. I built a knowledge base with video walkthroughs, added a chatbot for common issues, and created a triage system so complex questions went straight to our senior team.</p>
+                </div>
+                <div class="carl-example-section">
+                    <div class="carl-example-label">Result</div>
+                    <p class="carl-example-text">Response time dropped to 4 hours. Trial-to-paid conversion went up 12%. We handled 40% more tickets without adding headcount.</p>
+                </div>
+                <div class="carl-example-section">
+                    <div class="carl-example-label">Learning</div>
+                    <p class="carl-example-text">I learned that "we need more people" is often code for "our process is broken." Now I always look for patterns before asking for resources.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: Common Traps -->
+        <section class="slide" id="slide-7" role="group" aria-roledescription="slide" aria-label="Slide 7" tabindex="-1" data-notes="Warn about the common storytelling traps interviewees fall into.">
+            <h2>Three Traps to Avoid</h2>
+            <ul style="margin-top: 60px;">
+                <li><span class="highlight">The chronology trap:</span> Walking through your entire career history when someone asks "tell me about yourself"</li>
+                <li><span class="highlight">The modesty trap:</span> Saying "we" when you mean "I" to the point where your contribution disappears</li>
+                <li><span class="highlight">The detail trap:</span> Explaining technical specifics that don't serve the story</li>
+            </ul>
+        </section>
+
+        <!-- Slide 8: Application Contexts -->
+        <section class="slide" id="slide-8" role="group" aria-roledescription="slide" aria-label="Slide 8" tabindex="-1" data-notes="Highlight where the storytelling framework applies in daily work.">
+            <h2>Where This Applies</h2>
+            <div class="context-grid">
+                <div class="context-card">
+                    <h3>Interview Questions</h3>
+                    <p>Show what was at stake, what you did that was non-obvious, and what changed</p>
+                </div>
+                <div class="context-card">
+                    <h3>LinkedIn Outreach</h3>
+                    <p>Lead with a specific result that's relevant to who you're contacting</p>
+                </div>
+                <div class="context-card">
+                    <h3>Internal Intros</h3>
+                    <p>Pick one thing you've done that matters to THIS room</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 9: Conflict Example -->
+        <section class="slide" id="slide-9" role="group" aria-roledescription="slide" aria-label="Slide 9" tabindex="-1" data-notes="Share conflict example showing data-driven compromise.">
+            <h2>Example: Handling Conflict</h2>
+            <div class="comparison">
+                <div class="comparison-box weak">
+                    <div class="label" style="color: #ef4444;">❌ WEAK</div>
+                    <p>"I had a disagreement with a colleague about project direction. We talked it through and came to a compromise."</p>
+                </div>
+                <div class="comparison-box strong">
+                    <div class="label" style="color: #10b981;">✓ STRONG</div>
+                    <p>"My design partner wanted to add five new features before launch. I knew we'd miss our window. I showed him data from our last delayed launch—cost us 30% of potential users. We cut to two features, shipped on time, and added the rest based on feedback."</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 10: Your Homework -->
+        <section class="slide" id="slide-10" role="group" aria-roledescription="slide" aria-label="Slide 10" tabindex="-1" data-notes="Outline the three-part homework assignment for attendees.">
+            <h2>Your Homework</h2>
+            <div class="framework-box" style="margin-top: 60px;">
+                <h3 style="color: #ffffff; margin-bottom: 30px;">Three Steps:</h3>
+                <p style="font-size: 1.5rem; margin-bottom: 25px;">1. Pick one story you'll need in the next month</p>
+                <p style="font-size: 1.5rem; margin-bottom: 25px;">2. Write it using CARL: Context → Action → Result → Learning</p>
+                <p style="font-size: 1.5rem;">3. Cut it by a third (most first drafts are too long)</p>
+            </div>
+        </section>
+
+        <!-- Slide 11: Closing -->
+        <section class="slide" id="slide-11" role="group" aria-roledescription="slide" aria-label="Slide 11" tabindex="-1" data-notes="Reinforce the goal of making value clear to listeners.">
+            <h2>The Goal</h2>
+            <p style="font-size: 2rem; margin-top: 80px; line-height: 1.5;">
+                The goal isn't to sound impressive.
+            </p>
+            <p style="font-size: 2rem; margin-top: 40px; line-height: 1.5;">
+                It's to make the person listening think:<br>
+                <span class="highlight">"I understand what you do and why it matters."</span>
+            </p>
+            <p style="font-size: 1.6rem; margin-top: 80px;">
+                That's the difference between being forgettable and being the person they remember when the decision comes.
+            </p>
+        </section>
+
+        <!-- Slide 12: Q&A -->
+        <section class="slide" id="slide-12" role="group" aria-roledescription="slide" aria-label="Slide 12" tabindex="-1" data-notes="Invite questions and close the session.">
+            <h2>Questions?</h2>
+        </section>
+    </main>
+
+    <div id="notes-panel" role="complementary" aria-label="Speaker notes" hidden>
+        <h3>Notes</h3>
+        <p id="notes-panel-content"></p>
+    </div>
+
+    <div class="slide-number" aria-live="polite">
+        <span id="current-slide">1</span> / <span id="total-slides">12</span>
+    </div>
+
+    <div class="navigation" role="group" aria-label="Slide navigation controls">
+        <button id="prev-btn" type="button" aria-label="Go to previous slide">← Previous</button>
+        <button id="next-btn" type="button" aria-label="Go to next slide">Next →</button>
+    </div>
+
+    <div id="slide-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+    <script>
+        (function () {
+            const slides = Array.from(document.querySelectorAll('.slide'));
+            const totalSlides = slides.length;
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const pdfBtn = document.getElementById('pdf-btn');
+            const currentSlideNum = document.getElementById('current-slide');
+            const totalSlideNum = document.getElementById('total-slides');
+            const announcer = document.getElementById('slide-announcer');
+            const notesPanel = document.getElementById('notes-panel');
+            const notesPanelContent = document.getElementById('notes-panel-content');
+            const slideContainer = document.querySelector('main.slide-container');
+            const searchParams = new URLSearchParams(window.location.search);
+
+            const state = {
+                current: 0,
+                presenterWindow: null,
+                isPresenter: searchParams.get('presenter') === 'true',
+                showNotesPanel: searchParams.get('notes') === 'true',
+                isSyncing: false,
+                timer: {
+                    interval: null,
+                    start: 0,
+                    elapsed: 0,
+                    running: false
+                }
+            };
+
+            const notes = slides.map((slide) => {
+                if (!slide.dataset.notes || !slide.dataset.notes.trim()) {
+                    const heading = slide.querySelector('h1, h2, h3');
+                    const firstParagraph = slide.querySelector('p');
+                    const autoNote = [heading ? heading.textContent.trim() : 'Slide', firstParagraph ? firstParagraph.textContent.trim() : 'Review key points.'].join(' — ');
+                    slide.dataset.notes = autoNote;
+                }
+                return slide.dataset.notes.trim();
+            });
+
+            function updateNotesPanel() {
+                if (!state.showNotesPanel) return;
+                notesPanel.hidden = false;
+                notesPanelContent.textContent = notes[state.current];
+            }
+
+            function updateSlideAria() {
+                slides.forEach((slide, index) => {
+                    const isActive = index === state.current;
+                    slide.classList.toggle('active', isActive);
+                    slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+                    slide.tabIndex = isActive ? 0 : -1;
+                });
+                setTimeout(() => {
+                    slides[state.current].focus({ preventScroll: true });
+                }, 50);
+            }
+
+            function updateNavigationButtons() {
+                prevBtn.disabled = state.current === 0;
+                nextBtn.disabled = state.current === totalSlides - 1;
+            }
+
+            function updateHash() {
+                const newHash = `#slide-${state.current + 1}`;
+                if (window.location.hash !== newHash) {
+                    history.replaceState(null, '', `${window.location.pathname}${window.location.search}${newHash}`);
+                }
+            }
+
+            function announceSlide() {
+                announcer.textContent = `Slide ${state.current + 1} of ${totalSlides}`;
+            }
+
+            function broadcast(message) {
+                if (state.isSyncing) return;
+                if (state.presenterWindow && !state.presenterWindow.closed) {
+                    state.presenterWindow.postMessage(message, '*');
+                }
+                if (window.opener && !window.opener.closed) {
+                    window.opener.postMessage(message, '*');
+                }
+            }
+
+            function showSlide(index, options = {}) {
+                const normalized = (index + totalSlides) % totalSlides;
+                if (state.current === normalized && !options.force) {
+                    return;
+                }
+                state.current = normalized;
+                currentSlideNum.textContent = state.current + 1;
+                updateSlideAria();
+                updateNavigationButtons();
+                updateHash();
+                announceSlide();
+                updateNotesPanel();
+                updatePresenterView();
+                if (!options.fromExternal) {
+                    broadcast({
+                        namespace: 'deck-sync',
+                        type: 'sync',
+                        slide: state.current,
+                        notes: notes[state.current]
+                    });
+                }
+            }
+
+            function nextSlide() {
+                showSlide(state.current + 1);
+            }
+
+            function prevSlide() {
+                showSlide(state.current - 1);
+            }
+
+            function handleKeydown(event) {
+                if (event.defaultPrevented) return;
+                switch (event.key) {
+                    case 'ArrowRight':
+                    case 'ArrowDown':
+                        event.preventDefault();
+                        nextSlide();
+                        break;
+                    case 'ArrowLeft':
+                    case 'ArrowUp':
+                        event.preventDefault();
+                        prevSlide();
+                        break;
+                    case ' ': // Spacebar
+                        event.preventDefault();
+                        if (event.shiftKey) {
+                            prevSlide();
+                        } else {
+                            nextSlide();
+                        }
+                        break;
+                    case 'p':
+                    case 'P':
+                        event.preventDefault();
+                        togglePresenterWindow();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            function parseHash() {
+                const hash = window.location.hash;
+                if (!hash.startsWith('#slide-')) return null;
+                const index = parseInt(hash.replace('#slide-', ''), 10);
+                if (!Number.isNaN(index) && index >= 1 && index <= totalSlides) {
+                    return index - 1;
+                }
+                return null;
+            }
+
+            function handleHashChange() {
+                const index = parseHash();
+                if (index !== null) {
+                    showSlide(index, { fromExternal: true });
+                }
+            }
+
+            function togglePresenterWindow() {
+                if (state.isPresenter) {
+                    return;
+                }
+                if (state.presenterWindow && !state.presenterWindow.closed) {
+                    state.presenterWindow.close();
+                    state.presenterWindow = null;
+                    return;
+                }
+                const presenterUrl = new URL(window.location.href);
+                presenterUrl.searchParams.set('presenter', 'true');
+                presenterUrl.hash = `slide-${state.current + 1}`;
+                state.presenterWindow = window.open(presenterUrl.toString(), 'presenterView');
+                if (state.presenterWindow) {
+                    state.presenterWindow.focus();
+                }
+            }
+
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            function handleTouchStart(event) {
+                touchStartX = event.changedTouches[0].screenX;
+            }
+
+            function handleTouchEnd(event) {
+                touchEndX = event.changedTouches[0].screenX;
+                const delta = touchEndX - touchStartX;
+                if (Math.abs(delta) > 50) {
+                    if (delta < 0) {
+                        nextSlide();
+                    } else {
+                        prevSlide();
+                    }
+                }
+            }
+
+            function handleMessages(event) {
+                const data = event.data;
+                if (!data || data.namespace !== 'deck-sync') return;
+                switch (data.type) {
+                    case 'sync':
+                        if (typeof data.slide === 'number') {
+                            state.isSyncing = true;
+                            showSlide(data.slide, { fromExternal: true, force: true });
+                            state.isSyncing = false;
+                        }
+                        if (typeof data.notes === 'string') {
+                            notes[state.current] = data.notes;
+                            slides[state.current].dataset.notes = data.notes;
+                            updateNotesPanel();
+                            updatePresenterNotes();
+                        }
+                        break;
+                    case 'request-sync':
+                        broadcast({
+                            namespace: 'deck-sync',
+                            type: 'sync',
+                            slide: state.current,
+                            notes: notes[state.current]
+                        });
+                        break;
+                    case 'command':
+                        if (data.action === 'next') nextSlide();
+                        if (data.action === 'prev') prevSlide();
+                        if (data.action === 'goto' && typeof data.slide === 'number') {
+                            showSlide(data.slide, { fromExternal: true });
+                        }
+                        break;
+                    case 'note-update':
+                        if (typeof data.slide === 'number' && typeof data.notes === 'string') {
+                            notes[data.slide] = data.notes;
+                            slides[data.slide].dataset.notes = data.notes;
+                            if (data.slide === state.current) {
+                                updateNotesPanel();
+                                updatePresenterNotes();
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            function setupPresenterLayout() {
+                if (!state.isPresenter) return;
+                document.body.classList.add('presenter-mode');
+
+                const presenterLayout = document.createElement('div');
+                presenterLayout.className = 'presenter-layout';
+                presenterLayout.setAttribute('role', 'presentation');
+                presenterLayout.innerHTML = `
+                    <div class="presenter-main" aria-label="Current slide">
+                        <div id="presenter-current" aria-live="polite"></div>
+                    </div>
+                    <div class="presenter-sidebar">
+                        <section class="presenter-panel" aria-label="Speaker notes">
+                            <h3>Notes</h3>
+                            <textarea id="presenter-notes-input" aria-label="Editable speaker notes"></textarea>
+                        </section>
+                        <section class="presenter-panel presenter-preview" aria-label="Next slide preview">
+                            <h3>Next</h3>
+                            <div id="presenter-next"></div>
+                        </section>
+                        <section class="presenter-panel presenter-controls" aria-label="Presenter controls">
+                            <div class="timer-display" id="timer-display">00:00</div>
+                            <div class="timer-buttons">
+                                <button type="button" id="timer-start" aria-label="Start or pause timer">Start</button>
+                                <button type="button" id="timer-reset" aria-label="Reset timer">Reset</button>
+                            </div>
+                            <div class="nav-buttons">
+                                <button type="button" id="presenter-prev" aria-label="Previous slide">← Previous</button>
+                                <button type="button" id="presenter-next" aria-label="Next slide">Next →</button>
+                            </div>
+                        </section>
+                    </div>
+                `;
+
+                document.body.appendChild(presenterLayout);
+                slideContainer.style.display = 'none';
+                document.querySelector('.navigation').style.display = 'none';
+                document.getElementById('pdf-btn').style.display = 'none';
+                document.querySelector('.slide-number').style.display = 'none';
+
+                const notesInput = document.getElementById('presenter-notes-input');
+                const presenterPrev = document.getElementById('presenter-prev');
+                const presenterNext = document.getElementById('presenter-next');
+                const timerStartBtn = document.getElementById('timer-start');
+                const timerResetBtn = document.getElementById('timer-reset');
+
+                notesInput.addEventListener('input', () => {
+                    const updatedNotes = notesInput.value;
+                    notes[state.current] = updatedNotes;
+                    slides[state.current].dataset.notes = updatedNotes;
+                    broadcast({
+                        namespace: 'deck-sync',
+                        type: 'note-update',
+                        slide: state.current,
+                        notes: updatedNotes
+                    });
+                    updateNotesPanel();
+                });
+
+                presenterPrev.addEventListener('click', prevSlide);
+                presenterNext.addEventListener('click', nextSlide);
+                timerStartBtn.addEventListener('click', toggleTimer);
+                timerResetBtn.addEventListener('click', resetTimer);
+
+                updatePresenterView();
+                broadcast({ namespace: 'deck-sync', type: 'request-sync' });
+            }
+
+            function cloneSlide(index) {
+                if (index < 0 || index >= totalSlides) return null;
+                const clone = slides[index].cloneNode(true);
+                clone.classList.remove('active');
+                clone.removeAttribute('aria-hidden');
+                clone.id = `${slides[index].id}-clone`;
+                clone.tabIndex = -1;
+                return clone;
+            }
+
+            function updatePresenterView() {
+                if (!state.isPresenter) {
+                    if (state.presenterWindow && state.presenterWindow.closed) {
+                        state.presenterWindow = null;
+                    }
+                    return;
+                }
+                const currentMount = document.getElementById('presenter-current');
+                const nextMount = document.getElementById('presenter-next');
+                const notesInput = document.getElementById('presenter-notes-input');
+                if (!currentMount || !nextMount || !notesInput) return;
+
+                currentMount.innerHTML = '';
+                nextMount.innerHTML = '';
+
+                const currentClone = cloneSlide(state.current);
+                if (currentClone) {
+                    currentMount.appendChild(currentClone);
+                }
+
+                const nextClone = cloneSlide(state.current + 1);
+                if (nextClone) {
+                    nextMount.appendChild(nextClone);
+                } else {
+                    nextMount.innerHTML = '<p style="color:#9ca3af;">This is the final slide.</p>';
+                }
+
+                updatePresenterNotes();
+            }
+
+            function updatePresenterNotes() {
+                if (!state.isPresenter) return;
+                const notesInput = document.getElementById('presenter-notes-input');
+                if (notesInput) {
+                    notesInput.value = notes[state.current] || '';
+                }
+            }
+
+            function updateTimerDisplay() {
+                if (!state.isPresenter) return;
+                const display = document.getElementById('timer-display');
+                if (!display) return;
+                const totalMilliseconds = state.timer.elapsed;
+                const minutes = Math.floor(totalMilliseconds / 60000);
+                const seconds = Math.floor((totalMilliseconds % 60000) / 1000);
+                display.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            function toggleTimer() {
+                const startButton = document.getElementById('timer-start');
+                if (!startButton) return;
+                if (state.timer.running) {
+                    clearInterval(state.timer.interval);
+                    state.timer.running = false;
+                    state.timer.elapsed = Date.now() - state.timer.start;
+                    startButton.textContent = 'Start';
+                } else {
+                    state.timer.running = true;
+                    state.timer.start = Date.now() - state.timer.elapsed;
+                    state.timer.interval = setInterval(() => {
+                        state.timer.elapsed = Date.now() - state.timer.start;
+                        updateTimerDisplay();
+                    }, 500);
+                    startButton.textContent = 'Pause';
+                }
+                updateTimerDisplay();
+            }
+
+            function resetTimer() {
+                const startButton = document.getElementById('timer-start');
+                if (!startButton) return;
+                clearInterval(state.timer.interval);
+                state.timer.running = false;
+                state.timer.elapsed = 0;
+                startButton.textContent = 'Start';
+                updateTimerDisplay();
+            }
+
+            function init() {
+                totalSlideNum.textContent = totalSlides;
+                prevBtn.disabled = true;
+                updateNotesPanel();
+                announceSlide();
+                updateHash();
+                updateNavigationButtons();
+                if (state.showNotesPanel) {
+                    notesPanel.hidden = false;
+                }
+
+                const initialIndex = parseHash();
+                if (initialIndex !== null) {
+                    showSlide(initialIndex, { force: true });
+                } else {
+                    showSlide(0, { force: true });
+                }
+
+                prevBtn.addEventListener('click', prevSlide);
+                nextBtn.addEventListener('click', nextSlide);
+                pdfBtn.addEventListener('click', () => window.print());
+
+                document.addEventListener('keydown', handleKeydown);
+                window.addEventListener('hashchange', handleHashChange);
+                window.addEventListener('message', handleMessages);
+
+                slideContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+                slideContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+                if (state.isPresenter) {
+                    setupPresenterLayout();
+                }
+
+                if (!state.isPresenter) {
+                    window.addEventListener('beforeunload', () => {
+                        if (state.presenterWindow && !state.presenterWindow.closed) {
+                            state.presenterWindow.close();
+                        }
+                    });
+                }
+
+                if (state.isPresenter && window.opener) {
+                    window.addEventListener('load', () => {
+                        broadcast({ namespace: 'deck-sync', type: 'request-sync' });
+                    });
+                }
+            }
+
+            init();
+        })();
+    </script>
+</body>
+</html>
+<!-- Acceptance Tests:
+1. Press "P" to open the presenter view, verify slide sync, editable notes, timer, and navigation in both windows.
+2. Navigate slides and confirm the URL hash updates; reload with a specific #slide-X and with ?presenter=true or ?notes=true to verify deep-linking.
+3. Click "Download PDF" to trigger window.print() and confirm each slide appears on its own page without navigation UI.
+4. Use arrow keys, Space/Shift+Space, and swipe left/right on touch to move between slides while announcements update. -->
